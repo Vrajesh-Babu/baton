@@ -22,7 +22,6 @@ It ensures that when you pass the "baton" from one LLM to the next, the context 
 1.  **Global Brain (SQLite):** A central database (`~/.baton/brain.db`) tracks your work across all projects.
 2.  **Local Vitals (.baton/):** Markdown files in your repo that assistants read and write.
 3.  **The Pulse:** A single command to sync your current state.
-
 ---
 
 ## 🛠 Installation
@@ -42,6 +41,9 @@ npm run build
 npm link
 ```
 
+*Note: After running `npm link`, you can use the `baton` command from any terminal. This links the local build to your global path.*
+
+---
 *Note: After running `npm link`, you can use the `baton` command from any terminal.*
 
 ---
