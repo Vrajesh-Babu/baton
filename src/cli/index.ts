@@ -37,6 +37,8 @@ program
         name: 'llms',
         message: 'Which LLMs do you use for this project?',
         choices: [
+          { name: 'All', value: 'all' },
+          new inquirer.Separator(),
           { name: 'Gemini CLI', value: 'gemini' },
           { name: 'Claude Code', value: 'claude' },
           { name: 'Cursor', value: 'cursor' },
@@ -47,9 +49,14 @@ program
       }
     ]);
 
-    if (llms.length > 0) {
-      vitals.createLLMConfigs(llms);
-      console.log(chalk.blue(`✔ Created instruction files for: ${llms.join(', ')}`));
+    let selectedLLMs = llms;
+    if (llms.includes('all')) {
+      selectedLLMs = ['gemini', 'claude', 'cursor', 'windsurf', 'cline', 'codex'];
+    }
+
+    if (selectedLLMs.length > 0) {
+      vitals.createLLMConfigs(selectedLLMs);
+      console.log(chalk.blue(`✔ Created instruction files for: ${selectedLLMs.join(', ')}`));
     }
   });
 
