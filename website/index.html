@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baton | Seamless LLM Context Handoff</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+        .energy-bar-fill { transition: width 0.5s ease-out; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float { animation: float 3s ease-in-out infinite; }
+        
+        .bg-grid {
+            background-image: radial-gradient(circle at 2px 2px, rgba(245, 158, 11, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        .llm-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .llm-card.active {
+            border-color: #F59E0B;
+            background: rgba(245, 158, 11, 0.1);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.1);
+        }
+        .llm-card.tired {
+            opacity: 0.3;
+            filter: grayscale(1) blur(1px);
+        }
+    </style>
+</head>
+<body class="bg-[#020617] text-slate-200 selection:bg-amber-500/30 bg-grid">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 backdrop-blur-xl border-b border-slate-800/50 bg-[#020617]/80">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                    <i class="fas fa-running text-slate-950 text-xl"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tighter text-white">BATON</span>
+            </div>
+            <div class="hidden md:flex gap-8 font-medium text-slate-400">
+                <a href="#how" class="hover:text-amber-400 transition-colors">How it Works</a>
+                <a href="#features" class="hover:text-amber-400 transition-colors">Features</a>
+                <a href="#integration" class="hover:text-amber-400 transition-colors">Integrations</a>
+            </div>
+            <a href="https://github.com/Vrajesh-Babu/baton" class="bg-white text-slate-950 px-6 py-2.5 rounded-full font-bold hover:bg-amber-400 transition-all active:scale-95 flex items-center gap-2">
+                <i class="fab fa-github"></i> Star on GitHub
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-40 pb-20 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm font-bold mb-6">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                    </span>
+                    Production Ready v1.0
+                </div>
+                <h1 class="text-6xl lg:text-8xl font-black text-white leading-none mb-8 tracking-tighter">
+                    NEVER REPEAT <br> YOURSELF <span class="text-amber-500 text-stroke italic">AGAIN.</span>
+                </h1>
+                <p class="text-xl text-slate-400 leading-relaxed mb-10 max-w-lg">
+                    When your LLM hits a rate limit, the momentum stops. Baton keeps the race alive by passing context seamlessly between your entire AI team.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="document.getElementById('how').scrollIntoView({behavior: 'smooth'})" class="bg-amber-500 text-slate-950 px-8 py-4 rounded-2xl font-black text-lg hover:bg-amber-400 transition-all shadow-xl shadow-amber-500/20 active:scale-95">
+                        Pass the Baton
+                    </button>
+                    <div class="px-8 py-4 rounded-2xl bg-slate-900 border border-slate-800 font-mono text-slate-300">
+                        npm install -g baton
+                    </div>
+                </div>
+            </div>
+            <div class="relative">
+                <div class="absolute -inset-10 bg-amber-500/10 blur-3xl rounded-full opacity-50"></div>
+                <!-- Visual Terminal -->
+                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-2 shadow-2xl float">
+                    <div class="bg-slate-800/50 rounded-2xl p-6 font-mono text-sm leading-relaxed">
+                        <div class="flex gap-1.5 mb-4">
+                            <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                        </div>
+                        <p class="text-slate-500 mb-2">// Switching to Claude Code</p>
+                        <p class="text-white mb-4"><span class="text-amber-500">$</span> baton pulse gemini "Fixed API auth"</p>
+                        <p class="text-green-400 mb-6">✔ Brain updated globally. 🧠</p>
+                        <p class="text-white mb-2"><span class="text-amber-500">$</span> claude code .</p>
+                        <p class="text-indigo-400">Claude: "I see you fixed the API auth. I'll continue with the frontend integration."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Infinite Relay Animation -->
+    <section id="how" class="py-24 bg-slate-900/30 border-y border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-black text-white mb-4">THE TEAM RELAY</h2>
+                <p class="text-slate-400">Watch how Baton moves context as LLMs reach their exhaustion points.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                <!-- Gemini -->
+                <div id="card-gemini" class="llm-card active p-8 rounded-3xl border border-slate-800 bg-slate-900/50 flex flex-col items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center text-2xl text-blue-400 relative">
+                        <i class="fas fa-robot"></i>
+                        <div id="baton-gemini" class="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-8 bg-amber-500 rounded-full shadow-[0_0_15px_#F59E0B] opacity-100 transition-opacity"></div>
+                    </div>
+                    <div class="text-center w-full">
+                        <p class="font-bold text-white mb-2">Gemini Pro</p>
+                        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div id="progress-gemini" class="energy-bar-fill h-full bg-blue-500" style="width: 20%"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Claude -->
+                <div id="card-claude" class="llm-card p-8 rounded-3xl border border-slate-800 bg-slate-900/50 flex flex-col items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-orange-500/20 flex items-center justify-center text-2xl text-orange-400 relative">
+                        <i class="fas fa-bolt"></i>
+                        <div id="baton-claude" class="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-8 bg-amber-500 rounded-full shadow-[0_0_15px_#F59E0B] opacity-0 transition-opacity"></div>
+                    </div>
+                    <div class="text-center w-full">
+                        <p class="font-bold text-white mb-2">Claude 3.5</p>
+                        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div id="progress-claude" class="energy-bar-fill h-full bg-orange-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- GPT-4 -->
+                <div id="card-gpt" class="llm-card p-8 rounded-3xl border border-slate-800 bg-slate-900/50 flex flex-col items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-2xl text-emerald-400 relative">
+                        <i class="fas fa-brain"></i>
+                        <div id="baton-gpt" class="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-8 bg-amber-500 rounded-full shadow-[0_0_15px_#F59E0B] opacity-0 transition-opacity"></div>
+                    </div>
+                    <div class="text-center w-full">
+                        <p class="font-bold text-white mb-2">GPT-4o</p>
+                        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div id="progress-gpt" class="energy-bar-fill h-full bg-emerald-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Llama -->
+                <div id="card-llama" class="llm-card p-8 rounded-3xl border border-slate-800 bg-slate-900/50 flex flex-col items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-500/20 flex items-center justify-center text-2xl text-purple-400 relative">
+                        <i class="fas fa-hippo"></i>
+                        <div id="baton-llama" class="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-8 bg-amber-500 rounded-full shadow-[0_0_15px_#F59E0B] opacity-0 transition-opacity"></div>
+                    </div>
+                    <div class="text-center w-full">
+                        <p class="font-bold text-white mb-2">Llama 3</p>
+                        <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                            <div id="progress-llama" class="energy-bar-fill h-full bg-purple-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button onclick="runMasterRelay()" id="master-btn" class="group relative px-12 py-5 bg-white text-slate-950 rounded-2xl font-black text-xl hover:bg-amber-400 transition-all active:scale-95 overflow-hidden">
+                    <span class="relative z-10">START RECOVERY RELAY</span>
+                    <div class="absolute inset-0 bg-amber-400 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Pillars -->
+    <section id="features" class="py-32 px-6">
+        <div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
+            <div class="group p-10 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-amber-500/50 transition-all">
+                <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl text-slate-950 mb-8">
+                    <i class="fas fa-database"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Local-First Brain</h3>
+                <p class="text-slate-400 leading-relaxed">Your data never leaves your machine. Baton uses a lightning-fast SQLite database in your home directory to store cross-project history.</p>
+            </div>
+            <div class="group p-10 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-amber-500/50 transition-all">
+                <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl text-slate-950 mb-8">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Non-Destructive</h3>
+                <p class="text-slate-400 leading-relaxed">We respect your established workflows. Baton prepends its mandates to your existing config files without deleting a single line of your code.</p>
+            </div>
+            <div class="group p-10 rounded-3xl bg-slate-900/50 border border-slate-800 hover:border-amber-500/50 transition-all">
+                <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl text-slate-950 mb-8">
+                    <i class="fas fa-search-plus"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">Global Intelligence</h3>
+                <p class="text-slate-400 leading-relaxed">Search through every task you've ever completed across all your projects. "How did I solve that auth bug in Project X?" Now you know.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supported Section -->
+    <section id="integration" class="py-24 border-t border-slate-800/50">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-slate-500 mb-12">Supports Your Entire AI Workforce</h2>
+            <div class="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+                <span class="text-2xl font-bold">Gemini</span>
+                <span class="text-2xl font-bold">Claude</span>
+                <span class="text-2xl font-bold">Cursor</span>
+                <span class="text-2xl font-bold">Windsurf</span>
+                <span class="text-2xl font-bold">Cline</span>
+                <span class="text-2xl font-bold">Codex</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="py-40 px-6 relative overflow-hidden">
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <h2 class="text-5xl lg:text-7xl font-black text-white mb-8 tracking-tighter">READY TO PASS <br> THE BATON?</h2>
+            <p class="text-xl text-slate-400 mb-12">Join developers who are reclaiming their flow state by eliminating repetitive LLM context setup.</p>
+            <a href="https://github.com/Vrajesh-Babu/baton" class="inline-block bg-white text-slate-950 px-12 py-5 rounded-2xl font-black text-xl hover:bg-amber-400 transition-all active:scale-95 shadow-2xl shadow-white/5">
+                Install Baton Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-20 px-6 border-t border-slate-800/50">
+        <div class="max-w-7xl mx-auto flex flex-col md:row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-running text-slate-950 text-sm"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter text-white">BATON</span>
+            </div>
+            <p class="text-slate-500 text-sm font-medium">Built for the next generation of AI-Native Engineers.</p>
+            <div class="flex gap-6 text-slate-500 text-xl">
+                <a href="https://github.com/Vrajesh-Babu/baton" class="hover:text-white transition-colors"><i class="fab fa-github"></i></a>
+                <a href="#" class="hover:text-white transition-colors"><i class="fab fa-twitter"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const llms = ['gemini', 'claude', 'gpt', 'llama'];
+        let currentIdx = 0;
+
+        function runMasterRelay() {
+            const btn = document.getElementById('master-btn');
+            btn.disabled = true;
+            btn.querySelector('span').innerText = 'RELAY IN PROGRESS...';
+            
+            // Reset all
+            llms.forEach(id => {
+                document.getElementById(`card-${id}`).classList.remove('active', 'tired');
+                document.getElementById(`progress-${id}`).style.width = '0%';
+                document.getElementById(`baton-${id}`).style.opacity = '0';
+            });
+
+            currentIdx = 0;
+            processLLM();
+        }
+
+        function processLLM() {
+            if (currentIdx >= llms.length) {
+                const btn = document.getElementById('master-btn');
+                btn.disabled = false;
+                btn.querySelector('span').innerText = 'START RECOVERY RELAY';
+                return;
+            }
+
+            const id = llms[currentIdx];
+            const card = document.getElementById(`card-${id}`);
+            const progress = document.getElementById(`progress-${id}`);
+            const baton = document.getElementById(`baton-${id}`);
+
+            card.classList.add('active');
+            baton.style.opacity = '1';
+
+            // Simulate working and getting tired
+            setTimeout(() => {
+                progress.style.width = '100%';
+            }, 100);
+
+            setTimeout(() => {
+                card.classList.add('tired');
+                card.classList.remove('active');
+                
+                // Pass baton to next if exists
+                if (currentIdx + 1 < llms.length) {
+                    baton.style.opacity = '0';
+                    currentIdx++;
+                    processLLM();
+                } else {
+                    // Final finish
+                    currentIdx++;
+                    processLLM();
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
