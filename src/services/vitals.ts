@@ -75,4 +75,33 @@ You are using **Baton**, a centralized memory system for LLMs.
       fs.writeFileSync(path.join(this.projectRoot, 'CODEX.md'), instructions('codex'));
     }
   }
+
+  public addToGitignore(llms: string[]) {
+    const gitignorePath = path.join(this.projectRoot, '.gitignore');
+    let content = '';
+    if (fs.existsSync(gitignorePath)) {
+      content = fs.readFileSync(gitignorePath, 'utf-8');
+    }
+
+    const toIgnore = ['.baton/'];
+    if (llms.includes('gemini')) toIgnore.push('GEMINI.md');
+    if (llms.includes('claude')) toIgnore.push('CLAUDE.md');
+    if (llms.includes('cursor')) toIgnore.push('.cursorrules');
+    if (llms.includes('windsurf')) toIgnore.push('.windsurfrules');
+    if (llms.includes('cline')) toIgnore.push('.clinerules');
+    if (llms.includes('codex')) toIgnore.push('CODEX.md');
+
+    let updatedContent = content;
+    if (!updatedContent.includes('# Baton')) {
+      updatedContent += '\n\n# Baton\n';
+    }
+
+    toIgnore.forEach(item => {
+      if (!updatedContent.includes(item)) {
+        updatedContent += `${item}\n`;
+      }
+    });
+
+    fs.writeFileSync(gitignorePath, updatedContent);
+  }
 }

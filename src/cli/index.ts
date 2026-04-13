@@ -57,6 +57,20 @@ program
     if (selectedLLMs.length > 0) {
       vitals.createLLMConfigs(selectedLLMs);
       console.log(chalk.blue(`✔ Created instruction files for: ${selectedLLMs.join(', ')}`));
+
+      const { ignore } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'ignore',
+          message: 'Add these configuration files and the .baton folder to .gitignore?',
+          default: true
+        }
+      ]);
+
+      if (ignore) {
+        vitals.addToGitignore(selectedLLMs);
+        console.log(chalk.blue('✔ Updated .gitignore to exclude Baton files.'));
+      }
     }
   });
 
