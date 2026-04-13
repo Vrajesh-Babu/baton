@@ -45,7 +45,7 @@ export class VitalsService {
   }
 
   public createLLMConfigs(llms: string[]) {
-    const instructions = (name: string) => `# Baton Integration 🏃‍♂️💨
+    const getInstructions = (name: string) => `# Baton Integration 🏃‍♂️💨
 You are using **Baton**, a centralized memory system for LLMs.
 
 ## Your Mandates:
@@ -54,26 +54,31 @@ You are using **Baton**, a centralized memory system for LLMs.
 2. **Read Vitals:** At the start of every session, read \`.baton/HANDOFF.md\` to understand the current state.
 3. **Check Tasks:** Read \`.baton/TASK_BOARD.md\` to see what's next.
 4. **Use Global Brain:** If you need context from other projects, run \`baton query "<term>"\`.
+
+---
 `;
 
-    if (llms.includes('gemini')) {
-      fs.writeFileSync(path.join(this.projectRoot, 'GEMINI.md'), instructions('gemini'));
-    }
-    if (llms.includes('claude')) {
-      fs.writeFileSync(path.join(this.projectRoot, 'CLAUDE.md'), instructions('claude'));
-    }
-    if (llms.includes('cursor')) {
-      fs.writeFileSync(path.join(this.projectRoot, '.cursorrules'), instructions('cursor'));
-    }
-    if (llms.includes('windsurf')) {
-      fs.writeFileSync(path.join(this.projectRoot, '.windsurfrules'), instructions('windsurf'));
-    }
-    if (llms.includes('cline')) {
-      fs.writeFileSync(path.join(this.projectRoot, '.clinerules'), instructions('cline'));
-    }
-    if (llms.includes('codex')) {
-      fs.writeFileSync(path.join(this.projectRoot, 'CODEX.md'), instructions('codex'));
-    }
+    const writeSafe = (filename: string, name: string) => {
+      const filePath = path.join(this.projectRoot, filename);
+      const batonHeader = '# Baton Integration 🏃‍♂️💨';
+      const instructions = getInstructions(name);
+
+      if (fs.existsSync(filePath)) {
+        const existingContent = fs.readFileSync(filePath, 'utf-8');
+        if (!existingContent.includes(batonHeader)) {
+          fs.writeFileSync(filePath, instructions + '\n' + existingContent);
+        }
+      } else {
+        fs.writeFileSync(filePath, instructions);
+      }
+    };
+
+    if (llms.includes('gemini')) writeSafe('GEMINI.md', 'gemini');
+    if (llms.includes('claude')) writeSafe('CLAUDE.md', 'claude');
+    if (llms.includes('cursor')) writeSafe('.cursorrules', 'cursor');
+    if (llms.includes('windsurf')) writeSafe('.windsurfrules', 'windsurf');
+    if (llms.includes('cline')) writeSafe('.clinerules', 'cline');
+    if (llms.includes('codex')) writeSafe('CODEX.md', 'codex');
   }
 
   public addToGitignore(llms: string[]) {
