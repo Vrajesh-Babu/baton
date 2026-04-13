@@ -6,6 +6,7 @@ import { GitUtils } from '../utils/git.js';
 import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
+import inquirer from 'inquirer';
 
 const program = new Command();
 
@@ -17,7 +18,7 @@ program
 program
   .command('init')
   .description('Initialize Baton for the current project')
-  .action(() => {
+  .action(async () => {
     const root = GitUtils.getProjectRoot();
     const vitals = new VitalsService(root);
     vitals.ensureInitialized();
@@ -29,6 +30,24 @@ program
     });
 
     console.log(chalk.green('✔ Baton initialized successfully! 🏃‍♂️💨'));
+
+    const { llms } = await inquirer.prompt([
+      {
+        type: 'checkbox',
+        name: 'llms',
+        message: 'Which LLMs do you use for this project?',
+        choices: [
+          { name: 'Gemini CLI', value: 'gemini' },
+          { name: 'Claude Code', value: 'claude' },
+          { name: 'Cursor', value: 'cursor' }
+        ]
+      }
+    ]);
+
+    if (llms.length > 0) {
+      vitals.createLLMConfigs(llms);
+      console.log(chalk.blue(`✔ Created instruction files for: ${llms.join(', ')}`));
+    }
   });
 
 program

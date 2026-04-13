@@ -43,4 +43,27 @@ export class VitalsService {
     const timestamp = new Date().toISOString();
     fs.appendFileSync(filePath, `\n### ${timestamp}\n${entry}\n`);
   }
+
+  public createLLMConfigs(llms: string[]) {
+    const instructions = (name: string) => `# Baton Integration 🏃‍♂️💨
+You are using **Baton**, a centralized memory system for LLMs.
+
+## Your Mandates:
+1. **Sync After Tasks:** After completing a significant task or at the end of your session, you MUST run:
+   \`baton pulse ${name.toLowerCase()} "<summary of what you did>"\`
+2. **Read Vitals:** At the start of every session, read \`.baton/HANDOFF.md\` to understand the current state.
+3. **Check Tasks:** Read \`.baton/TASK_BOARD.md\` to see what's next.
+4. **Use Global Brain:** If you need context from other projects, run \`baton query "<term>"\`.
+`;
+
+    if (llms.includes('gemini')) {
+      fs.writeFileSync(path.join(this.projectRoot, 'GEMINI.md'), instructions('gemini'));
+    }
+    if (llms.includes('claude')) {
+      fs.writeFileSync(path.join(this.projectRoot, 'CLAUDE.md'), instructions('claude'));
+    }
+    if (llms.includes('cursor')) {
+      fs.writeFileSync(path.join(this.projectRoot, '.cursorrules'), instructions('cursor'));
+    }
+  }
 }

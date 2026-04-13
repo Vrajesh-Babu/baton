@@ -72,6 +72,31 @@ baton hooks
 
 ---
 
+## 🤖 LLM Integration (Crucial Step!)
+
+To make an LLM assistant (like Gemini CLI, Claude Code, or Cursor) aware that it should use **Baton**, you need to provide it with instructions. 
+
+### For Gemini CLI or Claude Code:
+Create a file named `GEMINI.md` or `CLAUDE.md` in your project root and paste this:
+
+```markdown
+# Baton Integration 🏃‍♂️💨
+You are using **Baton**, a centralized memory system for LLMs.
+
+## Your Mandates:
+1. **Sync After Tasks:** After completing a significant task or at the end of your session, you MUST run:
+   `baton pulse <llm_id> "<summary of what you did>"`
+   *(Replace <llm_id> with your name, e.g., gemini or claude)*
+2. **Read Vitals:** At the start of every session, read `.baton/HANDOFF.md` to understand the current state.
+3. **Check Tasks:** Read `.baton/TASK_BOARD.md` to see what's next.
+4. **Use Global Brain:** If you need context from other projects, run `baton query "<term>"`.
+```
+
+### For Cursor:
+Add the instructions above to your `.cursorrules` file.
+
+---
+
 ## 📂 The Memory Schema (`.baton/`)
 
 - `CORE.md`: Mission & Architecture.
