@@ -171,6 +171,10 @@
                 </div>
             </div>
 
+            <div id="relay-status" class="max-w-xl mx-auto mb-10 p-4 bg-slate-950/50 border border-slate-800 rounded-2xl font-mono text-xs text-slate-500 text-center overflow-hidden h-12 flex items-center justify-center">
+                Ready to start relay...
+            </div>
+
             <div class="flex justify-center">
                 <button onclick="runMasterRelay()" id="master-btn" class="group relative px-12 py-5 bg-white text-slate-950 rounded-2xl font-black text-xl hover:bg-amber-400 transition-all active:scale-95 overflow-hidden">
                     <span class="relative z-10">START RECOVERY RELAY</span>
@@ -254,6 +258,11 @@
         const llms = ['gemini', 'claude', 'gpt', 'llama'];
         let currentIdx = 0;
 
+        function updateRelayStatus(msg, isHighlight = false) {
+            const status = document.getElementById('relay-status');
+            status.innerHTML = isHighlight ? `<span class="text-amber-500 font-bold animate-pulse">${msg}</span>` : msg;
+        }
+
         function runMasterRelay() {
             const btn = document.getElementById('master-btn');
             btn.disabled = true;
@@ -275,6 +284,7 @@
                 const btn = document.getElementById('master-btn');
                 btn.disabled = false;
                 btn.querySelector('span').innerText = 'START RECOVERY RELAY';
+                updateRelayStatus('Relay Complete. Context preserved globally. 🏁');
                 return;
             }
 
@@ -282,14 +292,21 @@
             const card = document.getElementById(`card-${id}`);
             const progress = document.getElementById(`progress-${id}`);
             const baton = document.getElementById(`baton-${id}`);
+            const names = {gemini: 'Gemini Pro', claude: 'Claude 3.5', gpt: 'GPT-4o', llama: 'Llama 3'};
 
             card.classList.add('active');
             baton.style.opacity = '1';
+            updateRelayStatus(`${names[id]} is currently leading the session...`);
 
             // Simulate working and getting tired
             setTimeout(() => {
+                progress.style.transition = 'width 1.5s linear';
                 progress.style.width = '100%';
             }, 100);
+
+            setTimeout(() => {
+                updateRelayStatus(`${names[id]} is hitting rate limits! Preparing handoff...`, true);
+            }, 1200);
 
             setTimeout(() => {
                 card.classList.add('tired');
@@ -298,14 +315,19 @@
                 // Pass baton to next if exists
                 if (currentIdx + 1 < llms.length) {
                     baton.style.opacity = '0';
-                    currentIdx++;
-                    processLLM();
+                    const nextId = llms[currentIdx + 1];
+                    updateRelayStatus(`$ baton pulse ${id} "Passing to ${nextId}" --ref=https://github.com/Vrajesh-Babu/baton`, true);
+                    
+                    setTimeout(() => {
+                        currentIdx++;
+                        processLLM();
+                    }, 1000);
                 } else {
                     // Final finish
                     currentIdx++;
                     processLLM();
                 }
-            }, 2000);
+            }, 2500);
         }
     </script>
 </body>
