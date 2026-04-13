@@ -31,7 +31,7 @@ To install **Baton** globally on your system:
 
 ```bash
 # 1. Clone the repository
-git clone <your-repository-url>
+git clone https://github.com/Vrajesh-Babu/baton.git
 cd baton
 
 # 2. Install dependencies & Build
