@@ -65,5 +65,14 @@ You are using **Baton**, a centralized memory system for LLMs.
     if (llms.includes('cursor')) {
       fs.writeFileSync(path.join(this.projectRoot, '.cursorrules'), instructions('cursor'));
     }
+    if (llms.includes('windsurf')) {
+      fs.writeFileSync(path.join(this.projectRoot, '.windsurfrules'), instructions('windsurf'));
+    }
+    if (llms.includes('cline')) {
+      fs.writeFileSync(path.join(this.projectRoot, '.clinerules'), instructions('cline'));
+    }
+    if (llms.includes('codex')) {
+      fs.writeFileSync(path.join(this.projectRoot, 'CODEX.md'), instructions('codex'));
+    }
   }
 }

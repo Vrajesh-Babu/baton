@@ -39,7 +39,10 @@ program
         choices: [
           { name: 'Gemini CLI', value: 'gemini' },
           { name: 'Claude Code', value: 'claude' },
-          { name: 'Cursor', value: 'cursor' }
+          { name: 'Cursor', value: 'cursor' },
+          { name: 'Windsurf', value: 'windsurf' },
+          { name: 'Cline', value: 'cline' },
+          { name: 'Codex/Cursor Generic', value: 'codex' }
         ]
       }
     ]);
