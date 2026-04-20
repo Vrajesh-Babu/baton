@@ -22,7 +22,7 @@ program
     const root = GitUtils.getProjectRoot();
     const vitals = new VitalsService(root);
     vitals.ensureInitialized();
-    
+
     const brain = BrainService.getInstance();
     brain.registerProject({
       name: GitUtils.getProjectName(),
@@ -80,9 +80,38 @@ program
   .argument('<llmId>', 'The ID of the current LLM (e.g., gemini, claude)')
   .argument('<summary>', 'What was accomplished in this turn')
   .action(async (llmId, summary) => {
+    try {
+      const sync = new SyncService(GitUtils.getProjectRoot());
+      await sync.pulse(llmId, summary);
+      console.log(chalk.blue('⚡ Pulse synchronized! Brain updated. 🧠✨'));
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(chalk.red(`✖ Pulse failed: ${error.message}`));
+        process.exit(1);
+      }
+      throw error;
+    }
+  });
+
+program
+  .command('goal')
+  .description('Set the current goal for this project')
+  .argument('<goal>', 'The current goal or objective')
+  .action((goal) => {
     const sync = new SyncService(GitUtils.getProjectRoot());
-    await sync.pulse(llmId, summary);
-    console.log(chalk.blue('⚡ Pulse synchronized! Brain updated. 🧠✨'));
+    sync.setGoal(goal);
+    console.log(chalk.green('✔ Current goal updated! 🎯'));
+  });
+
+program
+  .command('next')
+  .description('Set the next steps for this project')
+  .argument('<steps>', 'The next steps to take (use \\n for multiple steps)')
+  .action((steps) => {
+    const sync = new SyncService(GitUtils.getProjectRoot());
+    const formatted = steps.replace('\\n', '\n');
+    sync.setNextSteps(formatted);
+    console.log(chalk.green('✔ Next steps updated! ➡️'));
   });
 
 program
@@ -91,15 +120,20 @@ program
   .argument('<text>', 'The search term')
   .action((text) => {
     const brain = BrainService.getInstance();
+
     const results = brain.queryGlobalHistory(text);
-    
+
     if (results.length === 0) {
       console.log(chalk.yellow('No matching context found.'));
     } else {
-      console.log(chalk.cyan(`Global Brain Context for "${text}":`));
+      console.log(chalk.cyan(`\nGlobal Brain Context for "${text}":\n`));
       results.forEach((r: any) => {
-        console.log(`- [${chalk.bold(r.project_name)}] (${r.timestamp}) ${r.summary}`);
+        console.log(`  ${chalk.dim('─'.repeat(50))}`);
+        console.log(`  ${chalk.bold(r.project_name)} ${chalk.dim(`(${r.timestamp})`)}`);
+        console.log(`  ${chalk.gray('LLM:')} ${r.llm_id}`);
+        console.log(`  ${r.summary}`);
       });
+      console.log('');
     }
   });
 
@@ -109,10 +143,28 @@ program
   .action(() => {
     const root = GitUtils.getProjectRoot();
     const vitals = new VitalsService(root);
-    
-    console.log(chalk.bold('Project:'), GitUtils.getProjectName());
-    console.log(chalk.bold('Handoff:'));
-    console.log(vitals.readFile('HANDOFF.md'));
+
+    console.log(chalk.bold('\n📊 Project Status\n'));
+    console.log(`${chalk.bold('Project:')} ${GitUtils.getProjectName()}`);
+    console.log(`${chalk.bold('Path:')} ${root}\n`);
+
+    console.log(`${chalk.bold('📋 Handoff:')}`);
+    const handoff = vitals.readFile('HANDOFF.md');
+    console.log(handoff);
+
+    // Show recent brain entries
+    const brain = BrainService.getInstance();
+    const project = brain.getProjectByPath(root);
+    if (project && project.id) {
+      const events = brain.getEvents(project.id, 3);
+      if (events.length > 0) {
+        console.log(chalk.bold('\n🧠 Recent Brain Entries:'));
+        events.forEach((e: any) => {
+          console.log(`  ${chalk.dim(e.timestamp)} ${chalk.gray(`[${e.llm_id}]`)}`);
+          console.log(`  ${e.summary.substring(0, 100)}${e.summary.length > 100 ? '...' : ''}\n`);
+        });
+      }
+    }
   });
 
 program
@@ -121,13 +173,16 @@ program
   .action(() => {
     const root = GitUtils.getProjectRoot();
     const hookPath = path.join(root, '.git', 'hooks', 'post-commit');
-    const hookContent = `#!/bin/sh\nbaton pulse git "Git Commit: $(git log -1 --pretty=%B)"\n`;
-    
+    const hookContent = `#!/bin/sh
+# Baton auto-sync hook
+baton pulse git "Git Commit: $(git log -1 --pretty=%B)" 2>/dev/null || true
+`;
+
     if (!fs.existsSync(path.dirname(hookPath))) {
       console.log(chalk.red('Error: Not a git repository or .git folder not found.'));
       return;
     }
-    
+
     fs.writeFileSync(hookPath, hookContent, { mode: 0o755 });
     console.log(chalk.green('✔ Git post-commit hook installed successfully! ⚓'));
   });
